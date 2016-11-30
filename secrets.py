@@ -32,7 +32,7 @@ def generate_keys(save_keys=False, use_ssh=False, location=None):
                                "id_rsa"), 'w') as content_file:
             os.chmod(os.path.join(os.path.expanduser("~"),
                                   LOCATION,
-                                  "id_rsa"), 0600)
+                                  "id_rsa"), "0600")
             content_file.write(private)
         with open(os.path.join(os.path.expanduser("~"),
                                LOCATION,
@@ -62,12 +62,12 @@ def decrypt(ciphertext, mykey):
 
 
 if __name__ == "__main__":
-    pubkey = file(os.path.join(os.path.expanduser("~"),
+    pubkey = open(os.path.join(os.path.expanduser("~"),
                                ".ssh/id_rsa.pub")).read()
-    key = file(os.path.join(os.path.expanduser("~"),
+    key = open(os.path.join(os.path.expanduser("~"),
                             ".ssh/id_rsa")).read()
     message = "Hello world"
-    ct = encrypt(message, pubkey)
-    print("encrypted: " + ct)
+    ct = encrypt(message.encode('utf8'), pubkey)
+    print("encrypted: " + str(ct))
     print("decrypted: " + decrypt(ct, key))
     generate_keys()

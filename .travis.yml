@@ -1,16 +1,16 @@
 
 language: python
 python:
-        # Not supported, tests fail
-        #- "2.6"
+        - "2.6"
         - "2.7"
-        # Not supported, tests fail
+
+        # Pycrypto doesn't seem fully supported for python 3
         #- "3.2"
-        - "3.3"
-        - "3.4"
-        - "3.5"
-        - "3.5-dev" # 3.5 development branch
-        - "nightly" # currently points to 3.6-dev
+        #- "3.3"
+        #- "3.4"
+        #- "3.5"
+        #- "3.5-dev" # 3.5 development branch
+        #- "nightly" # currently points to 3.6-dev
 script: python -m unittest discover
 install: "pip install -r requirements.txt"
 notifications:
