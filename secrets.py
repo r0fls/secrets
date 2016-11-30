@@ -62,12 +62,22 @@ def decrypt(ciphertext, mykey):
 
 
 if __name__ == "__main__":
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--encrypt', action="store_true")
+    parser.add_argument('--decrypt', action="store_true")
+    parser.add_argument('--file')
+    args = parser.parse_args()
     pubkey = open(os.path.join(os.path.expanduser("~"),
                                ".ssh/id_rsa.pub")).read()
     key = open(os.path.join(os.path.expanduser("~"),
                             ".ssh/id_rsa")).read()
-    message = "Hello world"
-    ct = encrypt(message.encode('utf8'), pubkey)
-    print("encrypted: " + str(ct))
-    print("decrypted: " + decrypt(ct, key))
-    generate_keys()
+    if args.file:
+        message = open(args.file).read()[:-1]
+    else:
+        message = sys.stdin.read()
+    if args.encrypt:
+        print(encrypt(message.encode('utf8'), pubkey))
+    elif args.decrypt:
+        print(decrypt(message, key).decode('utf8'))
