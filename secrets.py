@@ -4,32 +4,42 @@ from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 
 
-def generate_keys(use_ssh=False):
+def generate_keys(save_keys=False, use_ssh=False, location=None):
     '''
     Generate public/private keys. If `use_ssh` is true it uses the
-    ~/.ssh directory so that the keys can double as SSH keys.
+    ~/.ssh directory so that the keys can double as SSH keys. If `location`
+    is provided it uses that. Returns dict containing keys.
     '''
-    random_generator = Random.new().read
-    key = RSA.generate(2048, random_generator)
+
     LOCATION = ".secrets"
+    if use_ssh and location:
+        print("Don't use both of `use_ssh` and `location` together.")
+        assert(False)
     if use_ssh:
         LOCATION = ".ssh"
-    else:
-        os.mkdir(os.path.join(os.path.expanduser("~"), '.secrets')
+    elif save_keys:
+        os.mkdir(os.path.join(os.path.expanduser("~"), '.secrets'))
 
-    with open(os.path.join(os.path.expanduser("~"),
-                           LOCATION,
-                           "id_rsa"), 'w') as content_file:
-        os.chmod(os.path.join(os.path.expanduser("~"),
-                              LOCATION,
-                              "id_rsa"), 0600)
-        content_file.write(key.exportKey('PEM'))
+    random_generator = Random.new().read
+    key = RSA.generate(2048, random_generator)
+    private = key.exportKey('PEM')
     pubkey = key.publickey()
-    with open(os.path.join(os.path.expanduser("~"),
-                           LOCATION,
-                           "id_rsa.pub"), 'w') as content_file:
-        content_file.write(pubkey.exportKey('OpenSSH'))
+    public = pubkey.exportKey('OpenSSH')
 
+    if save_keys:
+        with open(os.path.join(os.path.expanduser("~"),
+                               LOCATION,
+                               "id_rsa"), 'w') as content_file:
+            os.chmod(os.path.join(os.path.expanduser("~"),
+                                  LOCATION,
+                                  "id_rsa"), 0600)
+            content_file.write(private)
+        with open(os.path.join(os.path.expanduser("~"),
+                               LOCATION,
+                               "id_rsa.pub"), 'w') as content_file:
+            content_file.write(public)
+
+    return {"private": private, "public": public}
 
 def encrypt(message, yourkey):
     '''
@@ -58,5 +68,6 @@ if __name__ == "__main__":
                             ".ssh/id_rsa")).read()
     message = "Hello world"
     ct = encrypt(message, pubkey)
-    print("encrypted: "+ct)
-    print("decrypted: "+decrypt(ct, key))
+    print("encrypted: " + ct)
+    print("decrypted: " + decrypt(ct, key))
+    generate_keys()
